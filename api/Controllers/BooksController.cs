@@ -100,5 +100,21 @@ namespace Fisher.Bookstore.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var book = db.Books.FirstOrDefault(b => b.Id == id);
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            db.Books.Remove(book);
+            db.SaveChanges();
+
+            return NoContent();
+        }
     }
 }
