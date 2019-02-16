@@ -75,5 +75,30 @@ namespace Fisher.Bookstore.Api.Controllers
 
             return CreatedAtRoute("GetBook", new { id = book.Id }, book);
         }
+        
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody]Book book)
+        {
+            //validate incoming book
+            if (book == null || book.Id != id)
+            {
+                return BadRequest();
+            }
+
+            //verify book is in the database
+            var bookToEdit = db.Books.FirstOrDefault(b => b.Id == id);
+            if (bookToEdit == null)
+            {
+                return NotFound();
+            }
+
+            bookToEdit.Title = book.Title;
+            bookToEdit.ISBN = book.ISBN;
+
+            db.Books.Update(bookToEdit);
+            db.SaveChanges();
+
+            return NoContent();
+        }
     }
 }
