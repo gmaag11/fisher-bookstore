@@ -48,5 +48,18 @@ namespace Fisher.Bookstore.Api.Controllers
         {
             return Ok(db.Books);
         }
+
+        [HttpGet("{id}")]
+        public IActionResult GetBook(int id)
+        {
+            var book = db.Books.FirstOrDefault(b => b.Id == id);
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(book);
+        }
     }
 }
