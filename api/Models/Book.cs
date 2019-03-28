@@ -2,7 +2,7 @@ using System;
 
 namespace Fisher.Bookstore.Models
 {
-    public class Book
+    public class Books
     {
         public int Id { get; set; }
 
@@ -12,7 +12,9 @@ namespace Fisher.Bookstore.Models
 
         public string ISBN { get; set; }
 
-        public DateTime publicationDate { get; set; }
+        public DateTime publishDate { get; set; }
+
+        public string Publisher { get; set; }
 
     }
 }
