@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Fisher.Bookstore.Api.Migrations
 {
-    [DbContext(typeof(BookstoreContext))]
+    [DbContext(typeof(Api.Data.BookstoreContext))]
     [Migration("20190328024734_init")]
     partial class init
     {

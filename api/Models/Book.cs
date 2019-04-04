@@ -2,7 +2,7 @@ using System;
 
 namespace Fisher.Bookstore.Models
 {
-    public class Book
+    public class Books
     {
         public int Id { get; set; } // shortcut to build a property: "prop" + tab
 
