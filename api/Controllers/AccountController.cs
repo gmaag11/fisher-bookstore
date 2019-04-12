@@ -43,6 +43,8 @@ namespace Fisher.Bookstore.Api.Controllers
         {
             return Unauthorized();
         }
+        var response = new { Token = serializedToken};
+        return Ok(response);
 
         ApplicationUser user = await UserManager.FindByEmailAsync(login.Email);
         JwtSecurityToken token = await GenerateTokenAsync(user);
@@ -50,9 +52,17 @@ namespace Fisher.Bookstore.Api.Controllers
         return Ok();
     }
 
-    private async Task<JwtSecurityToken> GenerateTokenAsync(ApplicationUser user)
+    IActionResult Unauthorized => throw new NotImplementedException();
+
+    private JwtSecurityToken GenerateToken(ApplicationUser user)
     {
         var claims = new List<Claim>();
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JsonClaimValueTypes.NameIdentifier, user.Id),
+            new Claim(JsonClaimValueTypes.Name, user.UserName),
+        };
 
         var expirationDays = congifuration.GetValue<int>
         ("JWTConfiguration:TokenExpirationDays");
@@ -69,7 +79,15 @@ namespace Fisher.Bookstore.Api.Controllers
             signingCredentials: new SigningCredentials(new
             SymmetricSecurityKey(signingKey), SecurityAlgorithms.HmacSha256));
 
-            
+
+
         return token;
+    }
+
+    [Authorize]
+    [HttpGet("profile")]
+    public IActionResult Profile()
+    {
+        return Ok(User.Identity.Name);
     }
 }
