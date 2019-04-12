@@ -1,4 +1,4 @@
-import { Component, OnInit, Input }  from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 import { Book } from '../book'; 
 
@@ -14,5 +14,6 @@ export class BookRowComponent implements OnInit {
   ngOnInit() {
   }
 
-  @Input() book: any;
+  @Input() book: any; 
+
 }

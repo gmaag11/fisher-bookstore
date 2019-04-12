@@ -1,6 +1,6 @@
-using Fisher.Bookstore.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore; 
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore; 
+using Fisher.Bookstore.Api.Models;
 
 namespace Fisher.Bookstore.Api.Data 
 {

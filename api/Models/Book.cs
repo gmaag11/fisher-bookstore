@@ -1,8 +1,8 @@
 using System; 
 
-namespace Fisher.Bookstore.Models
+namespace Fisher.Bookstore.Api.Models
 {
-    public class Books
+    public class Book
     {
         public int Id { get; set; } // shortcut to build a property: "prop" + tab
 

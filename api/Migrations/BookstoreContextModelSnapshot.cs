@@ -19,7 +19,7 @@ namespace Fisher.Bookstore.Api.Migrations
                 .HasAnnotation("ProductVersion", "2.2.1-servicing-10028")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("Fisher.Bookstore.Api.Data.ApplicationUser", b =>
+            modelBuilder.Entity("Fisher.Bookstore.Api.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -88,17 +88,15 @@ namespace Fisher.Bookstore.Api.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Author");
-
                     b.Property<int?>("AuthorId");
 
                     b.Property<string>("ISBN");
 
+                    b.Property<DateTime>("PublishDate");
+
                     b.Property<string>("Publisher");
 
                     b.Property<string>("Title");
-
-                    b.Property<DateTime>("publicationDate");
 
                     b.HasKey("Id");
 
@@ -216,7 +214,7 @@ namespace Fisher.Bookstore.Api.Migrations
 
             modelBuilder.Entity("Fisher.Bookstore.Models.Book", b =>
                 {
-                    b.HasOne("Fisher.Bookstore.Models.Author")
+                    b.HasOne("Fisher.Bookstore.Models.Author", "Author")
                         .WithMany("Titles")
                         .HasForeignKey("AuthorId");
                 });
@@ -231,7 +229,7 @@ namespace Fisher.Bookstore.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Fisher.Bookstore.Api.Data.ApplicationUser")
+                    b.HasOne("Fisher.Bookstore.Api.Models.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -239,7 +237,7 @@ namespace Fisher.Bookstore.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Fisher.Bookstore.Api.Data.ApplicationUser")
+                    b.HasOne("Fisher.Bookstore.Api.Models.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -252,7 +250,7 @@ namespace Fisher.Bookstore.Api.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Fisher.Bookstore.Api.Data.ApplicationUser")
+                    b.HasOne("Fisher.Bookstore.Api.Models.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -260,7 +258,7 @@ namespace Fisher.Bookstore.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Fisher.Bookstore.Api.Data.ApplicationUser")
+                    b.HasOne("Fisher.Bookstore.Api.Models.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

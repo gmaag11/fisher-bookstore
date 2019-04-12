@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Fisher.Bookstore.Api.Data;
-using Fisher.Bookstore.Data;
-using Fisher.Bookstore.Models;
+using Fisher.Bookstore.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens;
 
 namespace Fisher.Bookstore.Api.Controllers
 {
@@ -24,70 +25,93 @@ namespace Fisher.Bookstore.Api.Controllers
         private SignInManager<ApplicationUser> signInManager;
         private IConfiguration configuration;
 
-        public AccountController(UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager,
+        public AccountController(UserManager<ApplicationUser> userManager, 
+        SignInManager<ApplicationUser> signInManager, 
         IConfiguration configuration)
         {
-            this.userManager = userManager;
+            this.userManager = userManager; 
             this.signInManager = signInManager;
-            this.configuration = configuration;
+            this.configuration = configuration; 
         }
-    }
-    [AllowAnonymous]
-    [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] ApplicationUser login)
-    {
-        var result = await SignInManager.PasswordSignInAsync(login.Email,
-        login.Password, isPersistent: false, lockoutOnFailure: false);
-        if (!result.Succeeded)
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] ApplicationUser registration)
         {
-            return Unauthorized();
+            if(!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            ApplicationUser user = new ApplicationUser
+            {
+                Email = registration.Email,
+                UserName = registration.Email,
+                Id = registration.Email
+            };
+
+            IdentityResult result = await userManager.CreateAsync(user, registration.Password);
+
+            if(!result.Succeeded)
+            {
+                foreach (var err in result.Errors)
+                {
+                    ModelState.AddModelError(err.Code, err.Description);
+                }
+
+                return BadRequest(ModelState);
+            }
+            return Ok();
         }
-        var response = new { Token = serializedToken};
-        return Ok(response);
 
-        ApplicationUser user = await UserManager.FindByEmailAsync(login.Email);
-        JwtSecurityToken token = await GenerateTokenAsync(user);
-        string serializedToken = new JwtSecurityTokenHandler().WriteToken(token);
-        return Ok();
-    }
-
-    IActionResult Unauthorized => throw new NotImplementedException();
-
-    private JwtSecurityToken GenerateToken(ApplicationUser user)
-    {
-        var claims = new List<Claim>();
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] ApplicationUser login)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JsonClaimValueTypes.NameIdentifier, user.Id),
-            new Claim(JsonClaimValueTypes.Name, user.UserName),
-        };
+            var result = await signInManager.PasswordSignInAsync(login.Email, login.Password, isPersistent: false, lockoutOnFailure: false); 
+            if(!result.Succeeded)
+            {
+                return Unauthorized();
+            }
 
-        var expirationDays = congifuration.GetValue<int>
-        ("JWTConfiguration:TokenExpirationDays");
+            ApplicationUser user = await userManager.FindByEmailAsync(login.Email);
+            JwtSecurityToken token =  GenerateTokenAsync(user);
+            string serializedToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        var signingKey = Encoding.UTF8.GetBytes(ConfigurationBinder.GetValue<string>
-        ("JWTConfiguration:Key"));
+            var response = new { Token = serializedToken }; 
+            return Ok(response);
 
-        var token = new JwtSecurityToken(
-            IUserSecurityStampStore: configuration.GetValue<string>("JWTConfiguration:Issuer"),
-            audience: ConfigurationBinder.GetValue<string>("JWTConfiguration:Audience"),
-            claims: claims,
-            expires: DateTime.UtcNow.Add(TimeSpan.FromDays(expirationDays)),
-            notBefore: DateTime.UtcNow,
-            signingCredentials: new SigningCredentials(new
-            SymmetricSecurityKey(signingKey), SecurityAlgorithms.HmacSha256));
+        }
 
+        private JwtSecurityToken GenerateTokenAsync(ApplicationUser user)
+        {
+            var claims = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, user.UserName)
+            };
 
+            var expirationDays = configuration.GetValue<int>
+            ("JWTConfiguration: TokenExpirationDays");
 
-        return token;
-    }
+            var signingKey = Encoding.UTF8.GetBytes(configuration.GetValue<string>("JWTConfiguration:Key"));
 
-    [Authorize]
-    [HttpGet("profile")]
-    public IActionResult Profile()
-    {
-        return Ok(User.Identity.Name);
+            var token = new JwtSecurityToken(
+                issuer: configuration.GetValue<string>("JWTConfiguration:Issuer"),
+                audience: configuration.GetValue<string>("JWTConfiguration:Audience"),
+                claims: claims,
+                expires: DateTime.UtcNow.Add(TimeSpan.FromDays(expirationDays)),
+                notBefore: DateTime.UtcNow,
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(signingKey), SecurityAlgorithms.HmacSha256));
+            return token;
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public IActionResult Profile()
+        {
+            return Ok(User.Identity.Name); 
+        }
     }
 }
