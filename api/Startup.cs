@@ -68,7 +68,7 @@ namespace Fisher.Bookstore.Api
                 options.AddPolicy("CorsPolicy", builder => 
                 {
                     builder.WithOrigins("http://localhost:4200")
-                    .AllowAnyMethod()
+                    .AllowAnyMethod() 
                     .AllowAnyHeader();
                 });
             });
